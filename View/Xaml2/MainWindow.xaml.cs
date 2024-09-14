@@ -14,12 +14,14 @@ using Fork.logic.Utils;
 using Fork.ViewModel;
 using Application = System.Windows.Application;
 using Brush = System.Windows.Media.Brush;
+using System.Linq;
 
 namespace Fork.View.Xaml2;
 
 public partial class MainWindow : Window
 {
     private bool createOpen;
+    private bool isLightTheme = false;
     private bool importOpen;
     private object lastSelected;
     private NotifyIcon systemTrayIcon;
@@ -33,6 +35,10 @@ public partial class MainWindow : Window
         Closing += OnMainWindowClose;
         viewModel = ApplicationManager.Instance.MainViewModel;
         DataContext = viewModel;
+
+        // Start with DefaultTheme
+        isLightTheme = false;
+        LoadTheme(); // Cargar el tema DefaultTheme al inicio
     }
 
     private void OpenAppSettings_Click(object sender, RoutedEventArgs e)
@@ -63,6 +69,49 @@ public partial class MainWindow : Window
             DeleteNetworkOverlay.Visibility = Visibility.Visible;
         }
     }
+
+
+    public void BtnToggleThemeClick(object sender, RoutedEventArgs e)
+    {
+        isLightTheme = !isLightTheme; // Alternar el tema
+        LoadTheme(); // Cargar el tema correspondiente
+    }
+
+    private void LoadTheme()
+{
+    // Definir el tema basado en la selección
+    string theme = isLightTheme ? "LightTheme.xaml" : "DefaultTheme.xaml";
+
+    // Crear la URI del recurso de tema
+    var uri = new Uri($"pack://application:,,,/Fork;component/View/Resources/dictionaries/{theme}", UriKind.Absolute);
+
+    try
+    {
+        // Cargar el diccionario de recursos del tema
+        var resourceDict = new ResourceDictionary { Source = uri };
+
+        // Buscar si ya existe un diccionario de tema cargado
+        var themeDictionary = Application.Current.Resources.MergedDictionaries
+            .FirstOrDefault(d => d.Source != null && d.Source.OriginalString.Contains("Theme"));
+
+        // Eliminar el diccionario de tema anterior si existe
+        if (themeDictionary != null)
+        {
+            Application.Current.Resources.MergedDictionaries.Remove(themeDictionary);
+        }
+
+        // Agregar el nuevo diccionario de tema
+        Application.Current.Resources.MergedDictionaries.Add(resourceDict);
+
+        Console.WriteLine($"Tema cargado: {theme}");
+    }
+    catch (Exception ex)
+    {
+        // Capturar y mostrar cualquier error
+        System.Windows.MessageBox.Show($"Error al cargar el tema: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+    }
+}
+
 
     private void RenameOpen_Click(object sender, RoutedEventArgs e)
     {

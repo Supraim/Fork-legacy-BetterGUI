@@ -12,6 +12,7 @@
                 <ResourceDictionary Source="pack://application:,,,/View/Resources/dictionaries/LoadingSpinner.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/View/Resources/dictionaries/ButtonStyles.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/View/Resources/dictionaries/DefaultTheme.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/View/Resources/dictionaries/LightTheme.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/View/Resources/dictionaries/RadioButtonStyles.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/View/Resources/dictionaries/ContextMenuStyle.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/View/Resources/dictionaries/ListViewStyles.xaml" />

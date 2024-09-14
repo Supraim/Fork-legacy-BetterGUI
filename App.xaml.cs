@@ -3,6 +3,7 @@ using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using Fork.Logic.ApplicationConsole;
 using Fork.Logic.Logging;
@@ -37,6 +38,11 @@ public partial class App : Application
 
     public static string ServerPath => AppSettingsSerializer.Instance.AppSettings.ServerPath;
 
+    public App()
+    {
+        SetupUnhandledExceptionHandling(); // Configura el manejo de excepciones
+    }
+
     protected override void OnStartup(StartupEventArgs e)
     {
         Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-us");
@@ -45,7 +51,7 @@ public partial class App : Application
         InitializeConsole();
         Console.WriteLine("Detected Debug environment. Creating console window...");
 #else
-            Console.SetOut(ApplicationManager.ConsoleWriter);
+        Console.SetOut(ApplicationManager.ConsoleWriter);
 #endif
         ErrorLogger logger = new();
         base.OnStartup(e);
@@ -55,6 +61,30 @@ public partial class App : Application
     {
         ApplicationManager.Instance.ExitApplication();
     }
+
+    private void SetupUnhandledExceptionHandling()
+    {
+        // Captura excepciones de todos los hilos en el AppDomain.
+        AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
+            ShowUnhandledException(args.ExceptionObject as Exception, "AppDomain.CurrentDomain.UnhandledException");
+
+        // Captura excepciones de la cola de tareas no observadas.
+        TaskScheduler.UnobservedTaskException += (sender, args) =>
+            ShowUnhandledException(args.Exception, "TaskScheduler.UnobservedTaskException");
+
+        // Captura excepciones del hilo UI.
+        DispatcherUnhandledException += (sender, args) =>
+        {
+            ShowUnhandledException(args.Exception, "DispatcherUnhandledException");
+            args.Handled = true; // Evita que la aplicación se cierre.
+        };
+    }
+
+    private void ShowUnhandledException(Exception e, string unhandledExceptionType)
+    {
+        MessageBox.Show($"Error no manejado: {unhandledExceptionType}\n{e.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+    }
+
 #if DEBUG
     //Thanks to Alpha-c0d3r recommending this code in https://github.com/ForkGG/Fork/pull/21
     private static void InitializeConsole(bool alwaysCreateNewConsole = true)

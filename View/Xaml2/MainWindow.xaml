@@ -620,5 +620,11 @@
                 </StackPanel>
             </StackPanel>
         </Grid>
+        <Grid>
+    <Button Width="100" Height="30" HorizontalAlignment="Left" VerticalAlignment="Top" Click="BtnToggleThemeClick">
+        <TextBlock Text="Tema" VerticalAlignment="Center" HorizontalAlignment="Center" />
+    </Button>
+</Grid>
+
     </Grid>
 </Window>
